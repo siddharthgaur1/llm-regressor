@@ -1,0 +1,41 @@
+# Example: run llm-regressor against changed prompts on every PR and comment the report.
+name: Prompt Regression Check
+
+on:
+  pull_request:
+    paths:
+      - "prompts/**"
+
+jobs:
+  regression-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install llm-regressor
+      - name: Run regression suite
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          llm-regressor run \
+            --suite tests/regression_suite.yaml \
+            --baseline-prompt prompts/main/system.txt \
+            --candidate-prompt prompts/pr/system.txt \
+            --out results.json --html report.html
+      - name: Comment PR with report
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const results = JSON.parse(fs.readFileSync('results.json', 'utf8'));
+            const body = `## llm-regressor: ${results.passed ? '✅ PASSED' : '🔴 FAILED'}\n` +
+              `Critical: ${results.counts.CRITICAL}, Warning: ${results.counts.WARNING}, Info: ${results.counts.INFO}`;
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body,
+            });

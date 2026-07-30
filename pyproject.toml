@@ -1,0 +1,47 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "llm-regressor"
+version = "0.1.0"
+description = "Detect regressions between LLM model versions or prompt changes: factuality, format, tone, latency, cost."
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.10"
+authors = [{ name = "Siddharth Gaur" }]
+keywords = ["llm", "testing", "regression", "prompt-engineering", "eval", "anthropic", "openai"]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent",
+  "Topic :: Software Development :: Testing",
+]
+dependencies = [
+  "click>=8.1",
+  "rich>=13.7",
+  "jinja2>=3.1",
+  "pyyaml>=6.0",
+]
+
+[project.optional-dependencies]
+anthropic = ["anthropic>=0.40"]
+openai = ["openai>=1.50"]
+litellm = ["litellm>=1.50"]
+embeddings = ["sentence-transformers>=3.0"]
+ollama = ["requests>=2.31"]
+all = ["anthropic>=0.40", "openai>=1.50", "litellm>=1.50", "sentence-transformers>=3.0", "requests>=2.31"]
+dev = ["pytest>=8.0", "pytest-cov>=5.0"]
+
+[project.urls]
+Homepage = "https://github.com/siddharthgaur/llm-regressor"
+Repository = "https://github.com/siddharthgaur/llm-regressor"
+
+[project.scripts]
+llm-regressor = "llm_regressor.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["llm_regressor"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

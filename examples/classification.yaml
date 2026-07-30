@@ -1,0 +1,19 @@
+tests:
+  - id: sentiment_negative
+    input: "Classify the sentiment of: 'The product is terrible' — respond with one word: positive, negative, or neutral."
+    checks:
+      - type: semantic_similarity
+        reference: "negative"
+        threshold: 0.5
+      - type: length_range
+        min: 1
+        max: 30
+    category: classification
+
+  - id: sentiment_positive
+    input: "Classify the sentiment of: 'I love this product' — respond with one word: positive, negative, or neutral."
+    checks:
+      - type: semantic_similarity
+        reference: "positive"
+        threshold: 0.5
+    category: classification

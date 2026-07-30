@@ -1,0 +1,14 @@
+tests:
+  - id: rag_grounded_answer
+    input: "Context: The refund window is 30 days from delivery. Question: How many days do I have to request a refund?"
+    checks:
+      - type: contains
+        value: "30"
+      - type: instruction_following
+    category: rag
+
+  - id: rag_no_hallucination
+    input: "Context: The refund window is 30 days from delivery. Question: What is the refund window and what is the phone support number?"
+    checks:
+      - type: no_hallucination
+    category: rag
