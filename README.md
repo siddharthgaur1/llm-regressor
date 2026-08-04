@@ -91,6 +91,39 @@ llm-regressor report --input results.json --format html
 
 Exits with code `1` on any CRITICAL regression — wire it into CI to gate merges. See `docs/ci_example.yml` for a PR-comment workflow.
 
+## Architecture
+
+`Regressor.run()` (`core/regressor.py`) calls both providers per test case,
+runs each check (`checks/{deterministic,llm_judge,statistical}.py`) against
+the responses, and assembles a `Report` (`core/report.py`) of per-test
+`Regression`s with a severity. `Report.counts_by_category()` buckets those
+by `TestCase.category` for a per-category breakdown, and `core/alerting.py`
+optionally posts a Slack summary when `SLACK_WEBHOOK_URL` is set. Providers
+(`providers/*.py`) all implement one `complete(prompt) -> CompletionResult`
+interface, so swapping baseline/candidate models never touches check logic.
+
+## Results
+
+No live-model regression numbers ship in this repo — every check requires a
+real baseline/candidate model call, so there's no fixed accuracy figure to
+report without an API key or local Ollama daemon (`TODO(metric)`: run the
+bundled `examples/*.yaml` suites yourself and report pass rate). What's
+verified without any key: `pytest --cov=llm_regressor` (14 tests, covering
+`counts_by_category`, Slack alerting, and the test-suite YAML parser).
+
+## Limitations
+
+- LLM-judge checks (`no_hallucination`, `tone_match`, etc.) make a real LLM
+  call per check per test case — cost and latency scale with suite size ×
+  `samples`.
+- `self_consistency` requires `samples > 1`, which multiplies every judge
+  call by `samples` — expensive for large suites.
+- `semantic_similarity` needs an embedding backend configured; it's not
+  covered by the zero-key test suite.
+- No calibration data showing how well the LLM judges agree with human
+  raters — the 0.7/20% thresholds are defaults, not tuned against a labeled
+  set.
+
 ## Providers
 
 `providers.Anthropic`, `providers.OpenAI` (and any OpenAI-compatible endpoint via `base_url=`), `providers.Ollama` (local models), `providers.LiteLLM` (anything else). All implement `BaseProvider.complete(prompt) -> CompletionResult`.
