@@ -1,7 +1,7 @@
 # LLM Regression Testing | Detect prompt and model regressions automatically
 
 [![PyPI](https://img.shields.io/pypi/v/llm-regressor.svg)](https://pypi.org/project/llm-regressor/)
-[![CI](https://github.com/siddharthgaur/llm-regressor/actions/workflows/ci.yml/badge.svg)](https://github.com/siddharthgaur/llm-regressor/actions/workflows/ci.yml)
+[![CI](https://github.com/siddharthgaur1/llm-regressor/actions/workflows/ci.yml/badge.svg)](https://github.com/siddharthgaur1/llm-regressor/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 When you swap `gpt-4o` for `gpt-4o-mini`, edit a system prompt, or change RAG context, **llm-regressor** tells you exactly what broke: factuality, format adherence, tone, latency, cost, hallucination rate. Model-agnostic, drop-in, <10 lines to integrate.
