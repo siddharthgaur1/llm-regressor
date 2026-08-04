@@ -44,6 +44,20 @@ class Report:
             out[r.severity] += 1
         return out
 
+    def counts_by_category(self, test_categories: dict[str, str]) -> dict[str, dict[str, int]]:
+        """Bucket regression severities by test category.
+
+        Args:
+            test_categories: Maps test_id -> category (e.g. from TestCase.category).
+                Synthetic rows like ``__latency__``/``__cost__`` are grouped under "meta".
+        """
+        out: dict[str, dict[str, int]] = {}
+        for r in self.regressions:
+            category = test_categories.get(r.test_id, "meta")
+            bucket = out.setdefault(category, {"CRITICAL": 0, "WARNING": 0, "INFO": 0, "PASS": 0})
+            bucket[r.severity] += 1
+        return out
+
     def summary(self) -> None:
         from rich.console import Console
         from rich.table import Table
