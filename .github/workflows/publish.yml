@@ -1,20 +1,106 @@
-name: Publish to PyPI
+name: Publish
 
+# Tag-triggered release. The tag is the only trigger: publishing from a branch
+# push makes it impossible to say which commit a given PyPI version came from.
 on:
   push:
     tags:
       - "v*.*.*"
 
 jobs:
-  publish:
+  build:
     runs-on: ubuntu-latest
-    permissions:
-      id-token: write  # trusted publishing to PyPI
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - run: pip install build
+      - run: pip install build twine
       - run: python -m build
+      - run: twine check dist/*
+      # Refuse to publish a tag that disagrees with the version in the package.
+      # Without this, `git tag v0.2.0` on a tree still saying 0.1.0 silently
+      # republishes 0.1.0 and fails on PyPI with a confusing duplicate error.
+      - name: Verify tag matches __version__
+        run: |
+          TAG="${GITHUB_REF_NAME#v}"
+          PKG=$(python -c "import re,pathlib; print(re.search(r'__version__ = \"([^\"]+)\"', pathlib.Path('llm_regressor/__init__.py').read_text()).group(1))")
+          echo "tag=$TAG package=$PKG"
+          test "$TAG" = "$PKG"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+  testpypi:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: testpypi
+      url: https://test.pypi.org/p/llm-regressor
+    permissions:
+      id-token: write  # trusted publishing; no API token stored in the repo
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
       - uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          repository-url: https://test.pypi.org/legacy/
+
+  verify-testpypi:
+    needs: testpypi
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      # A clean install from TestPyPI, not from the local tree: this is the
+      # step that catches a package which builds fine but is missing a
+      # dependency or a data file once installed from an index.
+      # --extra-index-url because TestPyPI does not mirror real dependencies.
+      - name: Install from TestPyPI and smoke test
+        run: |
+          for i in 1 2 3 4 5; do
+            pip install --index-url https://test.pypi.org/simple/ \
+                        --extra-index-url https://pypi.org/simple/ \
+                        "llm-regressor==${GITHUB_REF_NAME#v}" && break
+            echo "not indexed yet, retrying in 20s"; sleep 20
+          done
+          llm-regressor --help
+          llm-regressor init
+          python -c "import llm_regressor; print(llm_regressor.__version__)"
+          python -c "import importlib.resources as r; assert (r.files('llm_regressor')/'templates'/'report.html').is_file()"
+          python -c "import importlib.resources as r; assert (r.files('llm_regressor')/'py.typed').is_file()"
+
+  pypi:
+    needs: verify-testpypi
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/p/llm-regressor
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+      - uses: pypa/gh-action-pypi-publish@release/v1
+
+  github-release:
+    needs: pypi
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*
+          generate_release_notes: true
