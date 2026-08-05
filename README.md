@@ -117,6 +117,20 @@ llm-regressor report --input results.json --format html
 
 Exits with code `1` on any CRITICAL regression — wire it into CI to gate merges. The [GitHub Action](https://siddharthgaur1.github.io/llm-regressor/github-action/) does this for you, with a PR comment.
 
+## Dashboard
+
+A single run tells you whether this change regressed. A directory of runs tells
+you whether the trend is drifting and which tests fail *repeatedly* — usually a
+bad test or an unstable prompt rather than a real regression.
+
+```bash
+pip install "llm-regressor[dashboard]"
+streamlit run dashboard/app.py            # reads ./reports by default
+```
+
+Pass-rate and severity trends, cost and latency over time, a repeat-offender
+table, and a baseline/candidate side-by-side per test.
+
 ## See it catch something
 
 ```bash
