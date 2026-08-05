@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from typing import Optional
-
 from ..checks import ALL_CHECKS, statistical
 from ..providers.base import BaseProvider
 from .report import CheckOutcome, Regression, Report
@@ -11,15 +9,15 @@ JUDGE_CHECK_NAMES = {"no_hallucination", "tone_match", "instruction_following", 
 
 
 class Regressor:
-    def __init__(self, baseline: BaseProvider, candidate: BaseProvider, judge: Optional[BaseProvider] = None):
+    def __init__(self, baseline: BaseProvider, candidate: BaseProvider, judge: BaseProvider | None = None):
         self.baseline = baseline
         self.candidate = candidate
         self.judge = judge or baseline
 
     def run(self, suite: TestSuite, samples: int = 1) -> Report:
         regressions: list[Regression] = []
-        all_latencies = {"baseline": [], "candidate": []}
-        all_costs = {"baseline": [], "candidate": []}
+        all_latencies: dict[str, list[float]] = {"baseline": [], "candidate": []}
+        all_costs: dict[str, list[float]] = {"baseline": [], "candidate": []}
 
         for test in suite:
             base_runs = [self.baseline.complete(test.input) for _ in range(samples)]
@@ -71,7 +69,9 @@ class Regressor:
             candidate_stats=_stats(all_latencies["candidate"], all_costs["candidate"]),
         )
 
-    def _evaluate_checks(self, test: TestCase, base_response: str, cand_response: str):
+    def _evaluate_checks(
+        self, test: TestCase, base_response: str, cand_response: str
+    ) -> tuple[list[CheckOutcome], str, list[str]]:
         outcomes: list[CheckOutcome] = []
         severity = "PASS"
         messages: list[str] = []
@@ -95,6 +95,10 @@ class Regressor:
                     messages.append(f"{check.type} dropped >20%: baseline {base_score:.2f} -> candidate {cand_score:.2f}")
             else:
                 passed, detail = fn(cand_response, **check.params)
+                # no_injection_risk lives in the judge registry but takes the deterministic path,
+                # and returns 1.0/0.0 rather than True/False. Normalise so CheckOutcome.passed
+                # is always a bool and serialises to JSON as one.
+                passed = bool(passed)
                 outcomes.append(CheckOutcome(check.type, passed, detail))
                 if not passed:
                     severity = _max_severity(severity, "CRITICAL")

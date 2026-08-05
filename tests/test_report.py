@@ -1,7 +1,5 @@
-import os
 
 import httpx
-import pytest
 
 from llm_regressor.core.alerting import send_slack_alert
 from llm_regressor.core.report import Regression, Report

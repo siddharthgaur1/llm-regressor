@@ -1,7 +1,7 @@
 """Optional Slack webhook alert for a completed Report.
 
 Ported from the llm-regression-detector prototype (merged into this repo —
-see CHANGELOG). Requires the `httpx` extra: `pip install llm-regressor[all]`.
+see CHANGELOG). Requires httpx: `pip install llm-regressor[slack]`.
 """
 from __future__ import annotations
 

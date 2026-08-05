@@ -68,7 +68,7 @@ def no_injection_risk(response: str, judge=None, prompt: str = "", **_) -> tuple
 
 def semantic_similarity(response: str, reference: str, judge=None, threshold: float = 0.8, **_) -> tuple[float, str]:
     try:
-        from sentence_transformers import SentenceTransformer, util
+        from sentence_transformers import util
         model = _get_embedder()
         emb = model.encode([response, reference])
         score = float(util.cos_sim(emb[0], emb[1])[0][0])

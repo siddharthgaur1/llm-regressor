@@ -49,7 +49,7 @@ def main():
 @click.option("--suite", required=True, type=click.Path(exists=True), help="Path to the test suite YAML.")
 @click.option("--baseline", default=None, help="Baseline model name, e.g. claude-sonnet-5.")
 @click.option("--candidate", default=None, help="Candidate model name, e.g. claude-haiku-4-5-20251001.")
-@click.option("--baseline-prompt", default=None, type=click.Path(exists=True), help="System prompt file for baseline (same model as candidate).")
+@click.option("--baseline-prompt", default=None, type=click.Path(exists=True), help="System prompt file for baseline (same model).")
 @click.option("--candidate-prompt", default=None, type=click.Path(exists=True), help="System prompt file for candidate.")
 @click.option("--samples", default=1, help="Runs per test, for consistency measurement.")
 @click.option("--out", default="results.json", help="Where to write the JSON report.")

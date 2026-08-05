@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import time
-from typing import Optional
 
 from .base import BaseProvider, CompletionResult
 
@@ -11,7 +10,7 @@ class Ollama(BaseProvider):
 
     name = "ollama"
 
-    def __init__(self, model: str, system_prompt: Optional[str] = None, host: str = "http://localhost:11434", **kwargs):
+    def __init__(self, model: str, system_prompt: str | None = None, host: str = "http://localhost:11434", **kwargs):
         super().__init__(model, system_prompt, **kwargs)
         self.host = host.rstrip("/")
 

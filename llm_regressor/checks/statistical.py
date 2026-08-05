@@ -14,7 +14,8 @@ def self_consistency(responses: list[str], **_) -> tuple[float, str]:
     if len(responses) < 2:
         return 1.0, "fewer than 2 samples, treated as consistent"
     try:
-        from sentence_transformers import SentenceTransformer, util
+        from sentence_transformers import util
+
         from .llm_judge import _get_embedder
 
         model = _get_embedder()

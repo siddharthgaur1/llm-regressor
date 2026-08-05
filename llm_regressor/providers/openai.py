@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import time
-from typing import Optional
 
 from .base import BaseProvider, CompletionResult
 
@@ -25,8 +24,8 @@ class OpenAI(BaseProvider):
 
     name = "openai"
 
-    def __init__(self, model: str, system_prompt: Optional[str] = None, api_key: Optional[str] = None,
-                 base_url: Optional[str] = None, **kwargs):
+    def __init__(self, model: str, system_prompt: str | None = None, api_key: str | None = None,
+                 base_url: str | None = None, **kwargs):
         super().__init__(model, system_prompt, **kwargs)
         try:
             import openai

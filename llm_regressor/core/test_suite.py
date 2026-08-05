@@ -26,12 +26,12 @@ class TestSuite:
     tests: list[TestCase]
 
     @classmethod
-    def from_yaml(cls, path: str | Path) -> "TestSuite":
+    def from_yaml(cls, path: str | Path) -> TestSuite:
         data = yaml.safe_load(Path(path).read_text())
         return cls.from_list(data.get("tests", []))
 
     @classmethod
-    def from_list(cls, tests: list[dict]) -> "TestSuite":
+    def from_list(cls, tests: list[dict]) -> TestSuite:
         parsed = []
         for raw in tests:
             checks = [

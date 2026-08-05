@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import time
-from typing import Optional
 
 from .base import BaseProvider, CompletionResult
 
@@ -24,7 +23,7 @@ def _price_for(model: str) -> tuple[float, float]:
 class Anthropic(BaseProvider):
     name = "anthropic"
 
-    def __init__(self, model: str, system_prompt: Optional[str] = None, api_key: Optional[str] = None, **kwargs):
+    def __init__(self, model: str, system_prompt: str | None = None, api_key: str | None = None, **kwargs):
         super().__init__(model, system_prompt, **kwargs)
         try:
             import anthropic
