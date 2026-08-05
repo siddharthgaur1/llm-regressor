@@ -3,6 +3,10 @@ from __future__ import annotations
 import json
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from rich.console import Console
 
 SEVERITY_ORDER = {"PASS": 0, "INFO": 1, "WARNING": 2, "CRITICAL": 3}
 
@@ -58,11 +62,13 @@ class Report:
             bucket[r.severity] += 1
         return out
 
-    def summary(self) -> None:
+    def summary(self, console: Console | None = None) -> None:
+        """Print the results table. Pass `console` to render somewhere other
+        than stdout — a file, a string buffer, or a recording console."""
         from rich.console import Console
         from rich.table import Table
 
-        console = Console()
+        console = console or Console()
         table = Table(title=f"{self.baseline_label}  vs  {self.candidate_label}")
         table.add_column("Test ID")
         table.add_column("Severity")

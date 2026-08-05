@@ -1,0 +1,52 @@
+site_name: llm-regressor
+site_description: Detect regressions between LLM model versions or prompt changes, and gate them in CI.
+site_url: https://siddharthgaur1.github.io/llm-regressor/
+repo_url: https://github.com/siddharthgaur1/llm-regressor
+repo_name: siddharthgaur1/llm-regressor
+edit_uri: edit/master/docs/
+
+theme:
+  name: material
+  features:
+    - navigation.sections
+    - navigation.top
+    - content.code.copy
+    - content.action.edit
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: deep purple
+      toggle:
+        icon: material/weather-night
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: deep purple
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to light mode
+
+nav:
+  - Home: index.md
+  - Quickstart: quickstart.md
+  - Worked example: example.md
+  - GitHub Action: github-action.md
+  - Configuration reference: configuration.md
+  - Python API: api.md
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - tables
+  - toc:
+      permalink: true
+
+# Fail the build on a dead internal link rather than publishing one.
+strict: true
+
+plugins:
+  - search

@@ -12,3 +12,6 @@ build/
 results.json
 suite.yaml
 .venv/
+site/
+demo-report.html
+llm-regressor-report.*

@@ -1,0 +1,71 @@
+name: New check type
+description: Propose a check the library should ship.
+labels: ["enhancement", "check-type"]
+body:
+  - type: textarea
+    id: regression
+    attributes:
+      label: What regression would this catch?
+      description: >
+        A concrete one you have hit or expect to hit, not a category. "The model
+        stopped emitting ISO dates and started writing 'next Tuesday'" is
+        actionable; "better date handling" is not.
+    validations:
+      required: true
+
+  - type: input
+    id: name
+    attributes:
+      label: Proposed check name
+      placeholder: "iso_date_format"
+    validations:
+      required: true
+
+  - type: textarea
+    id: yaml
+    attributes:
+      label: How it would look in a suite
+      render: yaml
+      placeholder: |
+        - type: iso_date_format
+          field: due_date
+    validations:
+      required: true
+
+  - type: dropdown
+    id: kind
+    attributes:
+      label: Kind
+      options:
+        - Deterministic (pure function of the response, no API call)
+        - Pattern (regex screen, no API call)
+        - Embedding (needs the embeddings extra)
+        - LLM judge (one API call per check, per test, per side)
+        - Statistical (operates across repeated samples)
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Should failing it block a merge?
+      description: >
+        CRITICAL blocks. Reserve it for things that are unambiguously broken —
+        every non-blocking signal added to CRITICAL makes the blocking ones
+        easier to ignore.
+      options:
+        - CRITICAL — blocks the merge
+        - WARNING — visible, non-blocking
+        - INFO — recorded only
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: existing
+    attributes:
+      label: Before proposing
+      options:
+        - label: I checked the [configuration reference](https://siddharthgaur1.github.io/llm-regressor/configuration/) and no existing check covers this
+          required: true
+        - label: This cannot reasonably be done with `regex_match`
+          required: true

@@ -1,0 +1,39 @@
+name: New provider
+description: Ask for a model backend that isn't supported yet.
+labels: ["enhancement", "provider"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Before opening this: `providers.LiteLLM` already reaches most backends
+        (`bedrock/`, `azure/`, `gemini/`, `vertex_ai/`, and more), and
+        `providers.OpenAI(base_url=...)` covers anything OpenAI-compatible.
+        A dedicated provider is worth adding when neither works, or when the
+        backend reports token usage or cost in a way those cannot capture.
+
+  - type: input
+    id: backend
+    attributes:
+      label: Which backend
+    validations:
+      required: true
+
+  - type: textarea
+    id: why
+    attributes:
+      label: Why LiteLLM or an OpenAI-compatible base_url doesn't cover it
+    validations:
+      required: true
+
+  - type: dropdown
+    id: usage
+    attributes:
+      label: Does it report token usage?
+      description: Without usage numbers, `cost_regression` cannot say anything.
+      options:
+        - "Yes, input and output tokens"
+        - "Partially"
+        - "No"
+        - "Not sure"
+    validations:
+      required: true

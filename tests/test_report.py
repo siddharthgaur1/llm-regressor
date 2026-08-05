@@ -17,6 +17,27 @@ def _report():
     )
 
 
+def test_summary_renders_into_a_supplied_console():
+    # The console parameter exists so the summary can be captured or recorded
+    # rather than only written to stdout; examples/render_demo_svg.py relies on
+    # it to build the README image out of real output.
+    import io
+
+    from rich.console import Console
+
+    buffer = io.StringIO()
+    _report().summary(console=Console(file=buffer, width=120))
+    output = buffer.getvalue()
+    assert "t1" in output
+    assert "CRITICAL" in output
+    assert "Overall: FAILED" in output
+
+
+def test_summary_defaults_to_stdout(capsys):
+    _report().summary()
+    assert "Overall: FAILED" in capsys.readouterr().out
+
+
 def test_counts_by_category_buckets_and_labels_meta_rows():
     report = _report()
     buckets = report.counts_by_category({"t1": "factual", "t2": "factual"})

@@ -1,0 +1,69 @@
+name: Bug report
+description: Something behaves differently from what the docs say.
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Nobody debugging this will have your API key. The single most useful
+        thing you can do is paste the model responses that produced the wrong
+        verdict — with those, the whole thing reproduces offline.
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened
+      description: What you expected, and what you got instead.
+    validations:
+      required: true
+
+  - type: textarea
+    id: suite
+    attributes:
+      label: Suite YAML
+      description: The smallest suite that still shows the problem.
+      render: yaml
+    validations:
+      required: true
+
+  - type: textarea
+    id: responses
+    attributes:
+      label: The responses involved
+      description: >
+        Baseline and candidate responses, verbatim. Redact anything sensitive,
+        but keep the structure — whitespace and formatting are often the bug.
+      render: text
+
+  - type: textarea
+    id: command
+    attributes:
+      label: How you ran it
+      description: The CLI command, Python snippet, or Action step.
+      render: shell
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: "`llm-regressor --version` or `python -c \"import llm_regressor; print(llm_regressor.__version__)\"`"
+    validations:
+      required: true
+
+  - type: input
+    id: python
+    attributes:
+      label: Python version and OS
+      placeholder: "3.12 on ubuntu-latest"
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: embeddings
+    attributes:
+      label: Environment details that change behaviour
+      options:
+        - label: "`sentence-transformers` is installed (changes how `semantic_similarity` and `self_consistency` score)"
+        - label: This happens inside CI but not locally
