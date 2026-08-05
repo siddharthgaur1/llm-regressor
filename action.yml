@@ -1,0 +1,147 @@
+name: "llm-regressor"
+description: "Fail a pull request when a prompt or model change regresses your golden test suite."
+branding:
+  icon: "git-pull-request"
+  color: "purple"
+
+inputs:
+  suite:
+    description: "Path to the test suite YAML."
+    required: true
+  baseline:
+    description: "Baseline model name (e.g. claude-sonnet-5). Use with `candidate`."
+    required: false
+  candidate:
+    description: "Candidate model name. Use with `baseline`."
+    required: false
+  baseline-prompt:
+    description: "Baseline system prompt file. Use with `candidate-prompt` to compare two prompts on one model."
+    required: false
+  candidate-prompt:
+    description: "Candidate system prompt file."
+    required: false
+  samples:
+    description: "Completions per test. >1 enables the self-consistency check; costs `samples`x more."
+    required: false
+    default: "1"
+  fail-on-regression:
+    description: "Fail the job on a CRITICAL regression. Set false to report without blocking the merge."
+    required: false
+    default: "true"
+  version:
+    description: "Version specifier for the package, e.g. '==0.1.0'. Empty installs the latest release."
+    required: false
+    default: ""
+  extras:
+    description: "Extras to install, e.g. 'anthropic' or 'all'."
+    required: false
+    default: "all"
+  python-version:
+    description: "Python version to run on."
+    required: false
+    default: "3.12"
+  comment-on-pr:
+    description: "Post the results table as a pull request comment. Needs `permissions: pull-requests: write`."
+    required: false
+    default: "true"
+
+outputs:
+  passed:
+    description: "'true' when no CRITICAL regression was found."
+    value: ${{ steps.run.outputs.passed }}
+  critical:
+    description: "Number of CRITICAL regressions."
+    value: ${{ steps.run.outputs.critical }}
+  warning:
+    description: "Number of WARNING regressions."
+    value: ${{ steps.run.outputs.warning }}
+  json-report:
+    description: "Path to the JSON report."
+    value: ${{ steps.run.outputs.json-report }}
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-python@v5
+      with:
+        python-version: ${{ inputs.python-version }}
+
+    - name: Install llm-regressor
+      shell: bash
+      run: pip install "llm-regressor[${{ inputs.extras }}]${{ inputs.version }}"
+
+    - name: Run suite
+      id: run
+      shell: bash
+      run: |
+        # `if` rather than `[ -n x ] && args+=(...)`: this script runs under
+        # `bash -e`, where a trailing false test is an easy way to abort a job
+        # for no reason.
+        args=(--suite "${{ inputs.suite }}" --samples "${{ inputs.samples }}"
+              --out llm-regressor-report.json --html llm-regressor-report.html)
+        if [ -n "${{ inputs.baseline }}" ]; then args+=(--baseline "${{ inputs.baseline }}"); fi
+        if [ -n "${{ inputs.candidate }}" ]; then args+=(--candidate "${{ inputs.candidate }}"); fi
+        if [ -n "${{ inputs.baseline-prompt }}" ]; then args+=(--baseline-prompt "${{ inputs.baseline-prompt }}"); fi
+        if [ -n "${{ inputs.candidate-prompt }}" ]; then args+=(--candidate-prompt "${{ inputs.candidate-prompt }}"); fi
+
+        # `|| true` so a CRITICAL regression still reaches the reporting steps
+        # below. The gate is re-applied at the end, after the report exists —
+        # a failing run you cannot see the report for is not a useful gate.
+        llm-regressor run "${args[@]}" || true
+
+        test -f llm-regressor-report.json || { echo "::error::llm-regressor produced no report"; exit 1; }
+        python - <<'PY' >> "$GITHUB_OUTPUT"
+        import json, os
+        d = json.load(open("llm-regressor-report.json"))
+        print(f"passed={str(d['passed']).lower()}")
+        print(f"critical={d['counts']['CRITICAL']}")
+        print(f"warning={d['counts']['WARNING']}")
+        print("json-report=llm-regressor-report.json")
+        PY
+
+    - name: Build summary
+      id: summary
+      shell: bash
+      run: |
+        python - <<'PY' > summary.md
+        import json
+        d = json.load(open("llm-regressor-report.json"))
+        icon = "✅" if d["passed"] else "❌"
+        print(f"### {icon} llm-regressor: `{d['baseline']}` → `{d['candidate']}`\n")
+        c = d["counts"]
+        print(f"**{c['CRITICAL']} critical**, {c['WARNING']} warning, {c['INFO']} info, {c['PASS']} pass\n")
+        rows = [r for r in d["regressions"] if r["severity"] in ("CRITICAL", "WARNING")]
+        if rows:
+            print("| Test | Severity | What changed |")
+            print("| --- | --- | --- |")
+            for r in rows:
+                msg = r["message"].replace("|", "\\|")[:300]
+                print(f"| `{r['test_id']}` | {r['severity']} | {msg} |")
+        else:
+            print("No regressions detected.")
+        PY
+        cat summary.md >> "$GITHUB_STEP_SUMMARY"
+
+    - uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: llm-regressor-report
+        path: |
+          llm-regressor-report.json
+          llm-regressor-report.html
+
+    - name: Comment on pull request
+      if: ${{ inputs.comment-on-pr == 'true' && github.event_name == 'pull_request' }}
+      shell: bash
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: gh pr comment "${{ github.event.pull_request.number }}" --body-file summary.md --repo "${{ github.repository }}"
+
+    - name: Apply the gate
+      if: ${{ inputs.fail-on-regression == 'true' }}
+      shell: bash
+      run: |
+        if [ "${{ steps.run.outputs.passed }}" != "true" ]; then
+          echo "::error::${{ steps.run.outputs.critical }} critical regression(s). See the job summary."
+          exit 1
+        fi
