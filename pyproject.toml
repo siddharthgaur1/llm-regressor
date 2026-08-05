@@ -69,8 +69,13 @@ filterwarnings = ["ignore::pytest.PytestCollectionWarning"]
 
 [tool.coverage.run]
 source = ["llm_regressor"]
+branch = true
 
 [tool.coverage.report]
+# The suite is at 100% (statement and branch). The gate sits at 90 on purpose:
+# a 100% gate turns every future PR into a coverage-chasing exercise and
+# pressures people into writing assertion-free tests to clear it.
+fail_under = 90
 exclude_lines = [
   "pragma: no cover",
   "raise NotImplementedError",

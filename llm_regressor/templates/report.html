@@ -22,8 +22,10 @@
   <p class="overall">Overall: <span class="badge {{ 'PASS' if report.passed else 'CRITICAL' }}">{{ 'PASSED' if report.passed else 'FAILED' }}</span></p>
 
   <div class="stats">
-    <div><strong>Baseline</strong><br>avg latency: {{ "%.0f"|format(report.baseline_stats.avg_latency_ms) }}ms<br>avg cost: ${{ "%.5f"|format(report.baseline_stats.avg_cost) }}</div>
-    <div><strong>Candidate</strong><br>avg latency: {{ "%.0f"|format(report.candidate_stats.avg_latency_ms) }}ms<br>avg cost: ${{ "%.5f"|format(report.candidate_stats.avg_cost) }}</div>
+    {# default(0): `llm-regressor report` re-renders a JSON file the user hands us,
+       which may predate these keys. A missing stat should show as 0, not abort the render. #}
+    <div><strong>Baseline</strong><br>avg latency: {{ "%.0f"|format(report.baseline_stats.avg_latency_ms|default(0)) }}ms<br>avg cost: ${{ "%.5f"|format(report.baseline_stats.avg_cost|default(0)) }}</div>
+    <div><strong>Candidate</strong><br>avg latency: {{ "%.0f"|format(report.candidate_stats.avg_latency_ms|default(0)) }}ms<br>avg cost: ${{ "%.5f"|format(report.candidate_stats.avg_cost|default(0)) }}</div>
     <div><strong>Regressions</strong><br>
       {{ report.counts.CRITICAL }} critical, {{ report.counts.WARNING }} warning, {{ report.counts.INFO }} info
     </div>
