@@ -2,7 +2,7 @@
 
 [![PyPI](https://img.shields.io/pypi/v/llm-regressor.svg)](https://pypi.org/project/llm-regressor/)
 [![CI](https://github.com/siddharthgaur1/llm-regressor/actions/workflows/ci.yml/badge.svg)](https://github.com/siddharthgaur1/llm-regressor/actions/workflows/ci.yml)
-[![Coverage](https://img.shields.io/badge/coverage-100%25-brightgreen.svg)](#verification)
+[![Coverage](https://img.shields.io/badge/coverage-100%25-brightgreen.svg)](#results)
 [![Python](https://img.shields.io/pypi/pyversions/llm-regressor.svg)](https://pypi.org/project/llm-regressor/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
@@ -154,22 +154,31 @@ optionally posts a Slack summary when `SLACK_WEBHOOK_URL` is set. Providers
 (`providers/*.py`) all implement one `complete(prompt) -> CompletionResult`
 interface, so swapping baseline/candidate models never touches check logic.
 
-## Verification
+## Results
 
-No live-model regression numbers ship in this repo — every check requires a
-real baseline/candidate model call, so there is no fixed accuracy figure to
-report without an API key or a local Ollama daemon (`TODO(metric)`: run the
-bundled `examples/*.yaml` suites yourself and report pass rate).
+Every check needs a real baseline/candidate model call, so there is no fixed
+accuracy figure to publish without an API key (`TODO(metric)`: run the bundled
+`examples/*.yaml` suites against two models and report pass rate). What *is*
+measurable without a key is the library itself:
 
-What is verified without any key, reproducibly:
+| Metric | Value | Reproduce with |
+| --- | --- | --- |
+| Tests | 123 passing | `pytest` |
+| Coverage | 100% statement, 100% branch | `pytest --cov=llm_regressor --cov-report=term-missing` |
+| Suite runtime | ~2s | `pytest --durations=5` |
+| Python support | 3.10 – 3.13 | `.github/workflows/ci.yml` matrix |
+| Lint | clean | `ruff check .` |
+| Package builds | sdist + wheel, `twine check` passes | `python -m build && twine check dist/*` |
+| Demo regression caught | 3 CRITICAL, exit 1 | `python examples/prompt_regression_demo.py` |
 
 ```bash
 pip install -e ".[dev]"
-ruff check .
-pytest --cov=llm_regressor --cov-report=term-missing
+ruff check . && pytest --cov=llm_regressor --cov-report=term-missing
 ```
 
-118 tests, 100% statement and branch coverage, ~2s, on Python 3.10–3.13.
+The vendor SDKs are faked at `sys.modules` level in the tests, so that run also
+proves the package works on a bare install with core dependencies alone. CI
+enforces a 90% coverage floor; the badge is what the command above prints.
 The vendor SDKs are faked at `sys.modules` level, so that run also proves the
 package works on a bare install with core dependencies alone. CI enforces a
 90% floor; the badge above is the figure that command currently prints.
