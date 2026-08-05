@@ -1,9 +1,7 @@
 # LLM Regression Testing | Detect prompt and model regressions automatically
 
-[![PyPI](https://img.shields.io/pypi/v/llm-regressor.svg)](https://pypi.org/project/llm-regressor/)
 [![CI](https://github.com/siddharthgaur1/llm-regressor/actions/workflows/ci.yml/badge.svg)](https://github.com/siddharthgaur1/llm-regressor/actions/workflows/ci.yml)
 [![Coverage](https://img.shields.io/badge/coverage-100%25-brightgreen.svg)](#results)
-[![Python](https://img.shields.io/pypi/pyversions/llm-regressor.svg)](https://pypi.org/project/llm-regressor/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 When you swap `gpt-4o` for `gpt-4o-mini`, edit a system prompt, or change RAG context, **llm-regressor** tells you exactly what broke: factuality, format adherence, tone, latency, cost, hallucination rate. Model-agnostic, drop-in, <10 lines to integrate.
@@ -16,9 +14,16 @@ When you swap `gpt-4o` for `gpt-4o-mini`, edit a system prompt, or change RAG co
 
 ## Install
 
+Not on PyPI yet — the release workflow exists but trusted publishing is not
+configured, so the tagged run has not published. Install from source:
+
 ```bash
-pip install llm-regressor[anthropic]   # or [openai], [litellm], [ollama], [all]
+git clone https://github.com/siddharthgaur1/llm-regressor
+cd llm-regressor
+pip install -e ".[anthropic]"   # or [openai], [litellm], [ollama], [all]
 ```
+
+Once published this becomes `pip install llm-regressor[anthropic]`.
 
 ## Gate a pull request in five lines
 
@@ -179,9 +184,6 @@ ruff check . && pytest --cov=llm_regressor --cov-report=term-missing
 The vendor SDKs are faked at `sys.modules` level in the tests, so that run also
 proves the package works on a bare install with core dependencies alone. CI
 enforces a 90% coverage floor; the badge is what the command above prints.
-The vendor SDKs are faked at `sys.modules` level, so that run also proves the
-package works on a bare install with core dependencies alone. CI enforces a
-90% floor; the badge above is the figure that command currently prints.
 
 ## Limitations
 
