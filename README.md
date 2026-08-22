@@ -1,5 +1,6 @@
 # LLM Regression Testing | Detect prompt and model regressions automatically
 
+[![Portfolio](https://img.shields.io/badge/↩-siddharthgaur1-111827?style=flat-square)](https://github.com/siddharthgaur1)
 [![CI](https://github.com/siddharthgaur1/llm-regressor/actions/workflows/ci.yml/badge.svg)](https://github.com/siddharthgaur1/llm-regressor/actions/workflows/ci.yml)
 [![Coverage](https://img.shields.io/badge/coverage-100%25-brightgreen.svg)](#results)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
