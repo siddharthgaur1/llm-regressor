@@ -1,0 +1,24 @@
+tests:
+  - id: refund_request
+    input: "I want a refund for order 4471."
+    category: support
+    checks:
+      - type: json_valid
+      - type: contains
+        value: "4471"
+
+  - id: escalation
+    input: "This is the third time I've contacted you. Escalate this."
+    category: support
+    checks:
+      - type: json_valid
+      - type: not_contains
+        value: "I cannot"
+
+  - id: order_status
+    input: "Where is order 9982?"
+    category: support
+    checks:
+      - type: json_valid
+      - type: contains
+        value: "9982"

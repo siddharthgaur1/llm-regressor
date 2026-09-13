@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>llm-regressor report: litellm:ollama/llama3.2 vs litellm:ollama/llama3.2</title>
+<style>
+  body { font-family: -apple-system, Segoe UI, Roboto, sans-serif; margin: 2rem; color: #1a1a1a; background: #fafafa; }
+  h1 { font-size: 1.4rem; }
+  .badge { display: inline-block; padding: 0.2rem 0.6rem; border-radius: 4px; color: white; font-weight: 600; }
+  .PASS { background: #2e7d32; } .INFO { background: #1565c0; } .WARNING { background: #e6a700; color: #222; } .CRITICAL { background: #c62828; }
+  table { border-collapse: collapse; width: 100%; margin: 1rem 0; background: white; }
+  th, td { border: 1px solid #ddd; padding: 0.5rem 0.75rem; text-align: left; font-size: 0.9rem; vertical-align: top; }
+  th { background: #f0f0f0; }
+  .stats { display: flex; gap: 2rem; margin: 1rem 0; }
+  .diff { display: flex; gap: 1rem; }
+  .diff pre { flex: 1; white-space: pre-wrap; background: #f5f5f5; padding: 0.5rem; border-radius: 4px; max-height: 200px; overflow: auto; }
+  .overall { font-size: 1.2rem; font-weight: 700; }
+</style>
+</head>
+<body>
+  <h1>litellm:ollama/llama3.2 <span style="color:#999">vs</span> litellm:ollama/llama3.2</h1>
+  <p class="overall">Overall: <span class="badge PASS">PASSED</span></p>
+
+  <div class="stats">
+    
+    <div><strong>Baseline</strong><br>avg latency: 13976ms<br>avg cost: $0.00000</div>
+    <div><strong>Candidate</strong><br>avg latency: 18406ms<br>avg cost: $0.00000</div>
+    <div><strong>Regressions</strong><br>
+      0 critical, 1 warning, 0 info
+    </div>
+  </div>
+
+  <table>
+    <thead><tr><th>Test ID</th><th>Severity</th><th>Message</th></tr></thead>
+    <tbody>
+    
+      <tr>
+        <td>refund_request</td>
+        <td><span class="badge WARNING">WARNING</span></td>
+        <td>self_consistency dropped: mean pairwise similarity 0.269 across 3 samples</td>
+      </tr>
+    
+      <tr>
+        <td>escalation</td>
+        <td><span class="badge PASS">PASS</span></td>
+        <td>no regression detected</td>
+      </tr>
+    
+      <tr>
+        <td>order_status</td>
+        <td><span class="badge PASS">PASS</span></td>
+        <td>no regression detected</td>
+      </tr>
+    
+      <tr>
+        <td>__latency__</td>
+        <td><span class="badge PASS">PASS</span></td>
+        <td>candidate p95 23207ms vs baseline p95 22732ms (threshold 1.5x)</td>
+      </tr>
+    
+      <tr>
+        <td>__cost__</td>
+        <td><span class="badge PASS">PASS</span></td>
+        <td>baseline cost is 0, skipping ratio check</td>
+      </tr>
+    
+    </tbody>
+  </table>
+
+  <h2>Per-test detail</h2>
+  
+    
+    <h3>refund_request <span class="badge WARNING">WARNING</span></h3>
+    <div class="diff">
+      <pre><strong>Baseline</strong>&#10;{"reply": "We apologize for the inconvenience. To initiate a refund for order 4471, could you please provide a valid reason for the return and we will process it as soon as possible?", "order_id": 4471}</pre>
+      <pre><strong>Candidate</strong>&#10;{"reply": "I'd be happy to help you with a refund for order 4471. Can you please provide me with your order number and the reason for the refund? This will help me assist you better. I'll do my best to process your refund as soon as possible.", "order_id": 4471}</pre>
+    </div>
+    <ul>
+      
+        <li>json_valid: ✅ ok</li>
+      
+        <li>contains: ✅ ok</li>
+      
+        <li>self_consistency: ❌ mean pairwise similarity 0.269 across 3 samples</li>
+      
+    </ul>
+    
+  
+    
+    <h3>escalation <span class="badge PASS">PASS</span></h3>
+    <div class="diff">
+      <pre><strong>Baseline</strong>&#10;{"reply": "I understand your frustration and apologize for the inconvenience you've experienced with your previous interactions. I am now escalating this issue to our senior support team for further assistance. Please hold for just a moment while I transfer you to them. Your order ID is #12345.", "order_id": "12345"}</pre>
+      <pre><strong>Candidate</strong>&#10;{"reply": "I apologize for the frustration and inconvenience caused by the repeated issues you're experiencing. I'm happy to escalate this to our specialized technical support team who will work closely with you to resolve the problem. Can you please provide me with the order ID so I can ensure a smooth handover? Once I have the order ID, I'll get the team to assist you as soon as possible.", "order_id": "ORD-12345"}</pre>
+    </div>
+    <ul>
+      
+        <li>json_valid: ✅ ok</li>
+      
+        <li>not_contains: ✅ ok</li>
+      
+        <li>self_consistency: ✅ mean pairwise similarity 0.136 across 3 samples</li>
+      
+    </ul>
+    
+  
+    
+    <h3>order_status <span class="badge PASS">PASS</span></h3>
+    <div class="diff">
+      <pre><strong>Baseline</strong>&#10;{"reply": "Order 9982 is currently being processed. Please allow a few minutes for it to be shipped.", "order_id": 9982}</pre>
+      <pre><strong>Candidate</strong>&#10;{"reply": "Hello there! I'd be happy to help you with your question. Unfortunately, I don't have access to real-time order information, but I can try to look up the order for you. Can you please tell me what type of order you're looking for (e.g. tracking, status, cancellation)?", "order_id": 9982}</pre>
+    </div>
+    <ul>
+      
+        <li>json_valid: ✅ ok</li>
+      
+        <li>contains: ✅ ok</li>
+      
+        <li>self_consistency: ✅ mean pairwise similarity 0.266 across 3 samples</li>
+      
+    </ul>
+    
+  
+    
+  
+    
+  
+
+  <p style="color:#999; font-size:0.8rem;">Generated by llm-regressor</p>
+</body>
+</html>

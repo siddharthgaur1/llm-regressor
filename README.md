@@ -162,10 +162,17 @@ interface, so swapping baseline/candidate models never touches check logic.
 
 ## Results
 
-Every check needs a real baseline/candidate model call, so there is no fixed
-accuracy figure to publish without an API key (`TODO(metric)`: run the bundled
-`examples/*.yaml` suites against two models and report pass rate). What *is*
-measurable without a key is the library itself:
+**One live-model run is committed:** [`examples/live-ollama/`](examples/live-ollama/)
+— the worked example's prompt change (v1 vs v1 + "Be warm and personable.")
+run through the CLI against `llama3.2` (3B) on local Ollama, CPU only,
+3 tests × 3 samples per side, 2026-09-13. Real `report.json`, `report.html`
+and terminal transcript. Result: **0 CRITICAL, 1 WARNING, Overall PASSED** —
+on this model the prompt edit did *not* reproduce the dropped-JSON regression
+the scripted demo shows. One run, one small model: it is an end-to-end
+artifact, not a pass-rate benchmark. Pass rates across the bundled
+`examples/*.yaml` suites and two models are still unmeasured.
+
+What is measurable without any model is the library itself:
 
 | Metric | Value | Reproduce with |
 | --- | --- | --- |

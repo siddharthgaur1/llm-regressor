@@ -1,0 +1,15 @@
+Running tests
+                          litellm:ollama/llama3.2  vs  litellm:ollama/llama3.2                           
+┌────────────────┬──────────┬───────────────────────────────────────────────────────────────────────────┐
+│ Test ID        │ Severity │ Message                                                                   │
+├────────────────┼──────────┼───────────────────────────────────────────────────────────────────────────┤
+│ refund_request │ WARNING  │ self_consistency dropped: mean pairwise similarity 0.269 across 3 samples │
+│ escalation     │ PASS     │ no regression detected                                                    │
+│ order_status   │ PASS     │ no regression detected                                                    │
+│ __latency__    │ PASS     │ candidate p95 23207ms vs baseline p95 22732ms (threshold 1.5x)            │
+│ __cost__       │ PASS     │ baseline cost is 0, skipping ratio check                                  │
+└────────────────┴──────────┴───────────────────────────────────────────────────────────────────────────┘
+Regressions: 0 CRITICAL, 1 WARNING, 0 INFO
+Overall: PASSED
+JSON report written to examples/live-ollama/report.json
+HTML report written to examples/live-ollama/report.html
