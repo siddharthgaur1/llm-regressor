@@ -7,6 +7,8 @@ anything else may change in a patch release.
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-09-22
+
 ### Added
 - `py.typed`, so type checkers in downstream projects see the annotations.
 - Reusable GitHub Action (`action.yml`) — five lines to gate a pull request,

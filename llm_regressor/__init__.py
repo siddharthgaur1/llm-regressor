@@ -18,7 +18,7 @@ from . import providers
 from .core import Check, CheckOutcome, Regression, Regressor, Report, TestCase, TestSuite
 from .core.alerting import send_slack_alert
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 __all__ = [
     "Check",
     "CheckOutcome",
