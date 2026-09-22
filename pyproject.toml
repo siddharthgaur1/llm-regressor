@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "llm-regressor"
-version = "0.2.0"
+version = "0.1.0"
 description = "Detect regressions between LLM model versions or prompt changes: factuality, format, tone, latency, cost."
 readme = "README.md"
 license = "MIT"
